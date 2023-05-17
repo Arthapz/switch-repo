@@ -3,10 +3,11 @@ package("switch-llvm")
     set_homepage("https://llvm.org/")
     set_description("The LLVM Compiler Infrastructure, targetting Nintendo switch environment")
 
-    add_urls("20230517", "https://github.com/llvm/llvm-project.git")
+    set_urls("https://github.com/llvm/llvm-project.git")
+    add_versions("20230517", "6f7a3b078191a925546ea3fead2e9cf0efdd9257")
 
-    add_deps("cmake")
-    add_deps("python 3.x")
+    add_deps("cmake", {kind = "binary", host = true})
+    add_deps("python 3.x", {kind = "binary", host = true})
 
     add_configs("use_ninja", {description = "Use ninja as cmake backend", default = false, type = "boolean"})
 
@@ -18,7 +19,7 @@ package("switch-llvm")
             opt.cmake_generator = "Ninja"
         end
 
-        import("package.tools.cmake").build({}, {
+        import("package.tools.cmake").build(package, {
             "-DCMAKE_BUILD_TYPE=Release",
             "-DLLVM_ENABLE_PROJECTS=clang;lld;lldb",
             "-DLLVM_ENABLE_RUNTIMES=compiler-rt",
@@ -27,6 +28,7 @@ package("switch-llvm")
             "-DLLVM_INSTALL_UTILS=ON",
             "-DLLVM_ENABLE_PIC=ON",
             "-DLLVM_ENABLE_MODULES=ON",
+            "-DLLVM_BUILD_TESTS=OFF",
             "-DCLANG_DEFAULT_CXX_STDLIB=libc++",
             "-DCLANG_DEFAULT_RTLIB=compiler-rt",
             "-DCLANG_DEFAULT_UNWINDLIB=libunwind",
