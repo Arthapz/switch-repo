@@ -1,4 +1,4 @@
-packages("switch-llvm")
+package("switch-llvm")
     set_kind("toolchain")
     set_homepage("https://llvm.org/")
     set_description("The LLVM Compiler Infrastructure, targetting Nintendo switch environment")
