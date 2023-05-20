@@ -9,17 +9,19 @@ package("switch-llvm")
     add_deps("cmake", {kind = "binary", host = true})
     add_deps("python 3.x", {kind = "binary", host = true})
 
-    add_configs("use_ninja", {description = "Use ninja as cmake backend", default = false, type = "boolean"})
+    add_configs("use_ninja", {description = "Use ninja as cmake backend", default = true, type = "boolean"})
 
-    on_install(function(package)
+    on_install("windows", "macos", "linux", function(package)
         local opt
 
         if has_config("use_ninja") then
             opt = opt or {}
             opt.cmake_generator = "Ninja"
+            package:add("deps", "ninja", {binary = true, host = true})
         end
 
-        import("package.tools.cmake").build(package, {
+        os.cd("llvm")
+        import("package.tools.cmake").install(package, {
             "-DCMAKE_BUILD_TYPE=Release",
             "-DLLVM_ENABLE_PROJECTS=clang;lld;lldb",
             "-DLLVM_ENABLE_RUNTIMES=compiler-rt",
@@ -29,6 +31,11 @@ package("switch-llvm")
             "-DLLVM_ENABLE_PIC=ON",
             "-DLLVM_ENABLE_MODULES=ON",
             "-DLLVM_BUILD_TESTS=OFF",
+            "-DLLVM_ENABLE_OCAMLDOC=OFF",
+            "-DLLVM_ENABLE_DOCS=OFF",
+            "-DLLVM_ENABLE_BINDINGS=OFF",
+            "-DLLVM_INCLUDE_TESTS=OFF",
+            "-DLLVM_INCLUDE_EXAMPLES=OFF",
             "-DCLANG_DEFAULT_CXX_STDLIB=libc++",
             "-DCLANG_DEFAULT_RTLIB=compiler-rt",
             "-DCLANG_DEFAULT_UNWINDLIB=libunwind",
