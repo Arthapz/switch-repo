@@ -14,7 +14,7 @@ package("switch-llvm")
     on_install("windows", "macos", "linux", function(package)
         local opt
 
-        if has_config("use_ninja") then
+        if package:config("use_ninja") then
             opt = opt or {}
             opt.cmake_generator = "Ninja"
             package:add("deps", "ninja", {binary = true, host = true})
