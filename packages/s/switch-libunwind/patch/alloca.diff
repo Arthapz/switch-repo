@@ -1,0 +1,12 @@
+diff --git a/libunwind/src/config.h b/libunwind/src/config.h
+index 6707d591361d..8d2641e8374f 100644
+--- a/libunwind/src/config.h
++++ b/libunwind/src/config.h
+@@ -17,6 +17,7 @@
+ #include <stdio.h>
+ #include <stdint.h>
+ #include <stdlib.h>
++#include <alloca.h>
+ 
+ #include <__libunwind_config.h>
+ 
