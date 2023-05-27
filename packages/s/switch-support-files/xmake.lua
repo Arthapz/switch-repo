@@ -2,7 +2,7 @@ package("switch-support-files")
     set_description("Switch support scripts and files")
 
     add_urls("https://github.com/Arthapz/switch-support-files.git")
-    add_versions("20230529-1", "bb82905fd9a8baca8501f3dcf2918522c79c4de1")
+    add_versions("20230529-2", "8a8a63b8093c71477021879d8c81347add35dae0")
 
     on_install("switch", function(package)
         os.cp("share", package:installdir()) -- TODO COPY .o FILES
