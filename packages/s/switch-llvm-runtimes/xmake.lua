@@ -5,13 +5,12 @@ package("switch-llvm-runtimes")
     add_deps("cmake", {kind = "binary", host = true})
     add_deps("ninja", {kind = "binary", host = true})
     add_deps("switch-llvm", {kind = "binary", host = true})
-    add_deps("switch-support-files")
-    add_deps("switch-newlib")
-    add_deps("switch-libnx")
 
     add_patches("20230525", "patch/switch.diff")
 
     on_load(function(package)
+        package:add("deps", "switch-newlib", "switch-libnx", {debug = package:debug()})
+
         package:add("linkdirs", "lib")
         package:add("linkdirs", path.join("lib", "linux"))
 
@@ -67,7 +66,7 @@ package("switch-llvm-runtimes")
         os.cd("runtimes")
         import("package.tools.cmake").install(package, {
             -- cmake
-            "-DCMAKE_BUILD_TYPE=Release",
+            "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"),
             "-DCMAKE_MAKE_PROGRAM=" .. path.join(package:dep("ninja"):installdir("bin"), "ninja" .. suffix),
             "-DCMAKE_SYSTEM_NAME=NxOS",
             "-DCMAKE_C_COMPILER_TARGET=aarch64-nxos-elf",

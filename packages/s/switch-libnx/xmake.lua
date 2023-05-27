@@ -1,12 +1,13 @@
 package("switch-libnx")
     add_urls("https://github.com/Arthapz/libnx.git", {branch = "main"})
-    add_versions("20230523-3", "4921b6ab072e03fd5ae808aaa8abf1a8cde6109a")
+    add_versions("20230527", "404487b17d284766da0a33a2124dd1a84cb343fa")
 
     add_deps("switch-llvm", {kind = "binary", host = true})
-    add_deps("switch-newlib")
+    add_deps("switch-newlib", {debug = is_mode("debug")})
 
     add_defines("LIBNX_NO_DEPRECATION")
 
     on_install("switch", function(package)
-        import("package.tools.xmake").install(package)
+        local opt ={ mode = package:debug() and "debug" or "release" }
+        import("package.tools.xmake").install(package, opt)
     end)
