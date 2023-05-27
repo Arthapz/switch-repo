@@ -30,7 +30,7 @@ package("switch-llvm")
             "-DLLVM_DEFAULT_TARGET_TRIPLE=aarch64-nxos-elf",
             "-DLLVM_INSTALL_UTILS=ON",
             "-DLLVM_ENABLE_PIC=ON",
-            "-DLLVM_ENABLE_MODULES=ON",
+            "-DLLVM_ENABLE_MODULES=OFF",
             "-DLLVM_BUILD_TESTS=OFF",
             "-DLLVM_ENABLE_OCAMLDOC=OFF",
             "-DLLVM_ENABLE_DOCS=OFF",
