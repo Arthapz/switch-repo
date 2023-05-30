@@ -1,43 +1,19 @@
-diff --git a/libunwind/src/CMakeLists.txt b/libunwind/src/CMakeLists.txt
-index 2eabbe06d1d1..9516d4cd5e16 100644
---- a/libunwind/src/CMakeLists.txt
-+++ b/libunwind/src/CMakeLists.txt
-@@ -31,6 +31,7 @@ set(LIBUNWIND_ASM_SOURCES
- # as C files as well.
- if((APPLE AND CMAKE_VERSION VERSION_LESS 3.19) OR
-    (MINGW AND CMAKE_VERSION VERSION_LESS 3.17) OR
-+   (${CMAKE_SYSTEM_NAME} MATCHES "Linux") OR
-    (${CMAKE_SYSTEM_NAME} MATCHES "AIX"))
-   set_source_files_properties(${LIBUNWIND_ASM_SOURCES} PROPERTIES LANGUAGE C)
- endif()
-diff --git a/libunwind/src/config.h b/libunwind/src/config.h
-index 6707d591361d..8d2641e8374f 100644
---- a/libunwind/src/config.h
-+++ b/libunwind/src/config.h
-@@ -17,6 +17,7 @@
- #include <stdio.h>
- #include <stdint.h>
- #include <stdlib.h>
-+#include <alloca.h>
- 
- #include <__libunwind_config.h>
-
 diff --git a/libcxx/src/thread.cpp b/libcxx/src/thread.cpp
-index ec4f65f9823b..bcfe4cdbb70e 100644
+index ec4f65f9823b..2b973aecbddb 100644
 --- a/libcxx/src/thread.cpp
 +++ b/libcxx/src/thread.cpp
-@@ -24,6 +24,11 @@
- #pragma weak pthread_create // Do not create libpthread dependency
+@@ -32,6 +32,11 @@
+ #pragma comment(lib, "pthread")
  #endif
-
+ 
 +#if defined(__SWITCH__)
 +#include <stddef.h>
 +#include <sys/sysctl.h>
 +#endif
 +
- #if defined(_LIBCPP_WIN32API)
- #include <windows.h>
- #endif
+ _LIBCPP_BEGIN_NAMESPACE_STD
+ 
+ thread::~thread()
 @@ -73,7 +78,14 @@ thread::detach()
  unsigned
  thread::hardware_concurrency() noexcept
@@ -54,3 +30,15 @@ index ec4f65f9823b..bcfe4cdbb70e 100644
      long result = sysconf(_SC_NPROCESSORS_ONLN);
      // sysconf returns -1 if the name is invalid, the option does not exist or
      // does not have a definite limit.
+diff --git a/libunwind/src/config.h b/libunwind/src/config.h
+index 6707d591361d..8d2641e8374f 100644
+--- a/libunwind/src/config.h
++++ b/libunwind/src/config.h
+@@ -17,6 +17,7 @@
+ #include <stdio.h>
+ #include <stdint.h>
+ #include <stdlib.h>
++#include <alloca.h>
+ 
+ #include <__libunwind_config.h>
+ 
