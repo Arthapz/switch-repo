@@ -7,14 +7,14 @@ package("switch-llvm-runtimes")
     add_deps("ninja", {kind = "binary", host = true})
     add_deps("switch-llvm", {kind = "binary", host = true})
 
+    add_deps("switch-newlib", {debug = is_mode("debug")})
+    add_deps("libnx", {debug = is_mode("debug")})
+
     add_patches("20230530", "patch/switch.diff")
 
     add_configs("cxx_support", {description = "Enable C++ support", default = true, type = "boolean"})
 
     on_load(function(package)
-        package:add("deps", "switch-newlib", {debug = package:debug()})
-        package:add("deps", "libnx", {debug = package:debug()})
-
         if package:config("cxx_support") then
             package:add("components", "cxx", {deps = "base"})
         end
@@ -22,21 +22,15 @@ package("switch-llvm-runtimes")
     end)
 
     on_component("base", function(component)
-        component:set("links", "")
-        component:add("ldflags", "-L" .. component:installdir("lib"), {force = true})
-        component:add("ldflags", "-L" .. component:installdir("lib", "linux"), {force = true})
-        component:add("ldflags", "-Wl,--start-group,-lclang_rt.atomic-aarch64,-lclang_rt.builtins-aarch64,-lunwind,--end-group", {force = true})
-        component:add("shflags", "-L" .. component:installdir("lib"), {force = true})
-        component:add("shflags", "-L" .. component:installdir("lib", "linux"), {force = true})
-        component:add("shflags", "-Wl,--start-group,-lclang_rt.atomic-aarch64,-lclang_rt.builtins-aarch64,-lunwind,--end-group", {force = true})
+        component:add("linkdirs", path.join("lib", "linux"))
+        component:add("linkdirs", "lib")
+        component:add("links", "clang_rt.atomic-aarch64", "clang_rt.builtins-aarch64", "unwind")
 
         component:add("includedirs", path.join("lib", "clang", "17", "include"))
     end)
 
     on_component("cxx", function(component)
-        component:set("links", "")
-        component:add("ldflags", "-Wl,--start-group,-lc++,-lc++abi,-lc++experimental,--end-group", {force = true})
-        component:add("shflags", "-Wl,--start-group,-lc++,-lc++abi,-lc++experimental,--end-group", {force = true})
+        component:add("links", "c++", "c++abi", "c++experimental")
 
         component:set("includedirs", path.join("include", "c++", "v1"))
         component:add("includedirs", path.join("lib", "clang", "17", "include"))

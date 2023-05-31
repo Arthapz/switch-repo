@@ -7,12 +7,10 @@ package("glad")
     add_urls("https://github.com/devkitPro/switch-glad.git")
     add_versions("v0.1.27", "b8d8d43ba72c7f362eb0379e104053b587be31f8")
 
-    on_load(function(package)
-        package:add("deps", "switch-llvm-runtimes", {debug = package:debug()})
-        package:add("deps", "switch-newlib", {debug = package:debug()})
-        package:add("deps", "libnx", {debug = package:debug()})
-        package:add("deps", "switch-mesa", {debug = package:debug()})
-    end)
+    add_deps("switch-llvm-runtimes", {debug = is_mode("debug")})
+    add_deps("switch-newlib", {debug = is_mode("debug")})
+    add_deps("libnx", {debug = is_mode("debug")})
+    add_deps("switch-mesa", {debug = is_mode("debug")})
 
     on_install("switch", function (package)
         io.writefile("xmake.lua", [[

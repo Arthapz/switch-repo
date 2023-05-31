@@ -2,7 +2,7 @@ package("switch-support-files")
     set_description("Switch support scripts and files")
 
     add_urls("https://github.com/Arthapz/switch-support-files.git")
-    add_versions("20230529-2", "8a8a63b8093c71477021879d8c81347add35dae0")
+    add_versions("20230531", "d81f3ae61264c58d1728d7d23d877ef0b06bf76c")
 
     on_load(function(package)
         local object_dir = package:installdir("lib", "switch-support-files", "switch", "aarch64", is_mode("debug") and "debug" or "release", "src")

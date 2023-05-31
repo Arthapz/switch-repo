@@ -7,11 +7,7 @@ package("switch-newlib")
     add_deps("switch-llvm", {host = true})
 
     on_load(function(package)
-        package:set("links", "")
-        package:add("ldflags", "-L" .. package:installdir("lib"), {force = true})
-        package:add("ldflags", "-Wl,--start-group,-lc,-lm,-lpthread,-lsysbase,--end-group", {force = true})
-        package:add("shflags", "-L" .. package:installdir("lib"), {force = true})
-        package:add("shflags", "-Wl,--start-group,-lc,-lm,-lpthread,-lsysbase,--end-group", {force = true})
+        package:set("links", "c", "m", "pthread", "sysbase")
     end)
 
     on_install("switch", function(package)

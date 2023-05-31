@@ -18,6 +18,10 @@ package("switch-mesa")
     add_deps("libnx", {debug = is_mode("debug")})
     add_deps("libdrm_nouveau", {debug = is_mode("debug")})
 
+    on_load(function(package)
+        package:set("links", "GLESv2", "EGL", "glapi")
+    end)
+
     on_install("switch", function(package)
         os.runv("python3", {"-m", "pip", "install", "-U", "pip"})
         os.runv("python3", {"-m", "pip", "install", "mako"})
@@ -37,30 +41,28 @@ package("switch-mesa")
                                        newlib_package:installdir("include"),
                                        libnx_package:installdir("include"))
 
-        local linkdirs = table.join(llvm_runtimes_package:installdir("lib"),
-                                    llvm_runtimes_package:installdir("lib", "linux"),
-                                    newlib_package:installdir("lib"),
-                                    libnx_package:installdir("lib"))
-                                    print(includedirs, linkdirs)
-
-        local cflags = {'-nostdinc', '-nostdlib'}
-        local cxxflags = {'-nostdinc', '-nostdlib', '-nostdinc++', '-nostdlib++', '-isystem', llvm_runtimes_package:installdir("include", "c++", "v1")}
+        local cflags = {'-nostdinc', '-nostdlib', "-fPIC"}
+        local cxxflags = {'-nostdinc',
+                          '-nostdlib',
+                          '-nostdinc++',
+                          '-nostdlib++',
+                          '-isystem',
+                          llvm_runtimes_package:installdir("include", "c++", "v1"), "-frtti"}
+        if package:debug() then
+            table.insert(cflags, "-g")
+            table.insert(cxxflags, "-g")
+        end
         for _, includedir in pairs(includedirs) do
             local dir = includedir:gsub("%\\", "/")
             table.join2(cflags, {'-isystem', dir})
             table.join2(cxxflags, {'-isystem', dir})
         end
 
-        local link_scripts_dir = switch_support_files_package:installdir("share", "link-scripts")
-        local object_dir = switch_support_files_package:installdir("lib", "switch-support-files", "switch", "aarch64", is_mode("debug") and "debug" or "release", "src")
-        local linker_script = path.join(link_scripts_dir, "nro.ld"):gsub("%\\", "/")
-
-        local crti = path.join(object_dir, "crti.S.o"):gsub("%\\", "/")
-        local crtn = path.join(object_dir, "crtn.S.o"):gsub("%\\", "/")
-        local ldflags = {crti, "-lc", "-lm", "-lsysbase", "-lpthread", "-lnosys", "-lnx", crtn, "-Wl,-T," .. linker_script}
-        for _, linkdir in ipairs(linkdirs) do
-            table.insert(ldflags, '-L' .. linkdir:gsub("%\\", "/"))
-        end
+        local ldflags = table.join({"-L" .. llvm_runtimes_lib_dir, "-L" .. clang_rt_lib_dir, "-lclang_rt.atomic-aarch64", "-lclang_rt.builtins-aarch64", "-lunwind"},
+                                   {"-L" .. newlib_lib_dir, "-lc", "-lm", "-lpthread", "-lsysbase"},
+                                   {"-L" .. libnx_lib_dir, "-lnx"},
+                                   {"-lc++", "-lc++abi", "-lc++experimental"},
+                                   switch_support_files_package:get("ldflags"))
 
         local machinefile = [[
 [build_machine]
@@ -104,7 +106,6 @@ endian = 'little'
                 end
             end
         end
-        print(envs.PATH)
         local opt = {
             cflags = cflags,
             cxxflags = cxxflags,
