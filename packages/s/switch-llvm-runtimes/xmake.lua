@@ -37,11 +37,14 @@ package("switch-llvm-runtimes")
     end)
 
     on_install("switch", function(package)
+        import("lib.detect.find_tool")
+
         local opt = {}
         opt.cmake_generator = "Ninja"
 
+        local ninja_exe = find_tool("ninja").program
+
         local suffix = is_host("windows") and ".exe" or ""
-        local ninja_exe = path.join(package:dep("ninja"):installdir("bin"), "ninja" .. suffix)
 
         local llvm_package = package:dep("switch-llvm")
         local newlib_package = package:dep("switch-newlib")
@@ -257,20 +260,8 @@ package("switch-llvm-runtimes")
         }
 
         os.cd("../llvm")
-        import("package.tools.cmake").build(package, clang_options, table.join(opt, {target = "core-resource-headers"}))
 
-        vprint(ninja_exe, "-C", package:buildir(), "install-core-resource-headers")
-        local outdata, errdata = os.iorunv(ninja_exe, {"-C", package:buildir(), "install-core-resource-headers"})
-        assert(errdata, errdata)
-        print(outdata)
-
-        vprint(ninja_exe, "-C", package:buildir(), "install-arm-common-resource-headers")
-        outdata, errdata = os.iorunv(ninja_exe, {"-C", package:buildir(), "install-arm-common-resource-headers"})
-        assert(errdata, errdata)
-        print(outdata)
-
-        vprint(ninja_exe, "-C", package:buildir(), "install-aarch64-resource-headers")
-        outdata, errdata = os.iorunv(ninja_exe, {"-C", package:buildir(), "install-aarch64-resource-headers"})
-        assert(errdata, errdata)
-        print(outdata)
+        import("package.tools.cmake").build(package, clang_options, table.join(opt, {target = "install-core-resource-headers"}))
+        import("package.tools.cmake").build(package, clang_options, table.join(opt, {target = "install-arm-common-resource-headers"}))
+        import("package.tools.cmake").build(package, clang_options, table.join(opt, {target = "install-aarch64-resource-headers"}))
     end)
