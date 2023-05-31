@@ -81,12 +81,14 @@ package("switch-llvm-runtimes")
                                                        .. " -L" .. package:installdir("lib"):gsub("%\\", "/")
                                                        .. " -L" .. package:installdir("lib", "linux"):gsub("%\\", "/")
                                                        .. " -fPIC"
+                                                       .. " -lclang_rt.atomic-aarch64 -lclang_rt.builtins-aarch64 -lunwind"
                                                        .. '")\n' ..
             'string(APPEND CMAKE_EXE_LINKER_FLAGS "'.. " -L" .. newlib_package:installdir("lib"):gsub("%\\", "/")
                                                        .. " -L" .. package:installdir("lib"):gsub("%\\", "/")
                                                        .. " -L" .. package:installdir("lib", "linux"):gsub("%\\", "/")
                                                        .. " -fPIC"
-                                                       .. " -pie"
+                                                       .. " -Wl,-pie"
+                                                       .. " -lclang_rt.atomic-aarch64 -lclang_rt.builtins-aarch64 -lunwind"
                                                        .. '")\n'
 
         io.replace("compiler-rt/CMakeLists.txt",
@@ -114,6 +116,8 @@ package("switch-llvm-runtimes")
                    cmakelist_replace_str,
                    cmakelist_replaced_str,
                    {plain = true})
+
+
         io.replace("clang/CMakeLists.txt",
                    cmakelist_replace_str,
                    cmakelist_replaced_str,

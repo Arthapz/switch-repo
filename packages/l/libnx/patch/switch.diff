@@ -1,0 +1,42 @@
+diff --git a/nx/source/runtime/init.c b/nx/source/runtime/init.c
+index cf9e6171..ebcf82b1 100644
+--- a/nx/source/runtime/init.c
++++ b/nx/source/runtime/init.c
+@@ -169,6 +169,10 @@ void __attribute__((weak)) __libnx_init(void* ctx, Handle main_thread, void* sav
+ {
+     // Called by crt0.
+ 
++    // Call constructors.
++    void __libc_init_array(void);
++    __libc_init_array();
++
+     // Libnx initialization goes here.
+     envSetup(ctx, main_thread, saved_lr);
+     newlibSetup();
+@@ -181,21 +185,18 @@ void __attribute__((weak)) __libnx_init(void* ctx, Handle main_thread, void* sav
+ 
+     // Initialize services.
+     __appInit();
+-
+-    // Call constructors.
+-    void __libc_init_array(void);
+-    __libc_init_array();
+ }
+ 
+ void __attribute__((weak)) NORETURN __libnx_exit(int rc)
+ {
+-    // Call destructors.
+-    void __libc_fini_array(void);
+-    __libc_fini_array();
+-
+     // Clean up services.
+     __appExit();
+ 
+     __nx_exit(0, envGetExitFuncPtr());
++
++    // Call destructors.
++    void __libc_fini_array(void);
++    __libc_fini_array();
++
+ }
+ 
