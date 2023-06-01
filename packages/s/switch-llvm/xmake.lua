@@ -16,7 +16,7 @@ package("switch-llvm")
         package:add("includedirs", path.join("lib", "clang", "17", "include"))
     end)
 
-    on_install("@windows", "@macos", "@linux", function(package)
+    on_install("@windows", "@macosx", "@linux", function(package)
         local opt = {}
         opt.cmake_generator = "Ninja"
 
