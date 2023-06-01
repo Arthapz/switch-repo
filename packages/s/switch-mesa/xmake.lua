@@ -2,6 +2,8 @@ package("switch-mesa")
     add_urls("https://github.com/devkitPro/mesa.git", {branch = "switch-20.1.0-rc3"})
     add_versions("20230527", "05fc4b1d449b8fe12cf1a47b46c4a1c1f4e4e3a6")
 
+    add_configs("debug", {description = "Build mesa in debug mode.", default = false, readonly = true})
+
     add_deps("python 3.8", {kind = "binary", host = true})
     add_deps("switch-llvm", {kind = "binary", host = true})
     add_deps("meson", {kind = "binary", host = true})
@@ -110,31 +112,10 @@ endian = 'little'
             cflags = cflags,
             cxxflags = cxxflags,
             ldflags = ldflags,
-            envs = envs
+            envs = envs,
+            buildtype = "release"
         }
 
         io.replace("meson.build", "find_program('nm')", "find_program('llvm-nm')", {plain = true})
-        io.replace("meson.build",
-[[_libnir = static_library(
-  'nir',
-  [files_libnir, spirv_info_c, nir_opt_algebraic_c, nir_opcodes_c,
-   nir_opcodes_h, nir_constant_expressions_c, nir_builder_opcodes_h,
-   vtn_gather_types_c, nir_intrinsics_c, nir_intrinsics_h],
-  include_directories : [inc_include, inc_src, inc_mapi, inc_mesa, inc_gallium, inc_gallium_aux, inc_compiler, include_directories('../spirv')],
-  c_args : [c_vis_args, c_msvc_compat_args, no_override_init_args],
-  link_with : libcompiler,
-  build_by_default : false,
-)]],
-[[_libnir = static_library(
-  'nir',
-  [files_libnir, spirv_info_c, nir_opt_algebraic_c, nir_opcodes_c,
-   nir_opcodes_h, nir_constant_expressions_c, nir_builder_opcodes_h,
-   vtn_gather_types_c, nir_intrinsics_c, nir_intrinsics_h],
-  include_directories : [inc_include, inc_src, inc_mapi, inc_mesa, inc_gallium, inc_gallium_aux, inc_compiler, include_directories('../spirv')],
-  c_args : [c_vis_args, c_msvc_compat_args, no_override_init_args],
-  link_with : libcompiler,
-  build_by_default : true,
-)]])
-
         meson.install(package, configs, opt)
     end)
