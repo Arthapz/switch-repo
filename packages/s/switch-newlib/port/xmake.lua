@@ -84,7 +84,31 @@ target("libc")
     add_files("newlib/libc/argz/**.c")
     add_files("newlib/libc/ssp/*.c")
     add_files("newlib/libc/machine/aarch64/**.c")
-    -- add_files("newlib/libc/machine/aarch64/**.S")
+
+    if is_mode("release") then
+        remove_files("newlibc/machine/aarch64/memchr.c")
+        remove_files("newlibc/machine/aarch64/memcmp.c")
+        remove_files("newlibc/machine/aarch64/memcpy.c")
+        remove_files("newlibc/machine/aarch64/memmove.c")
+        remove_files("newlibc/machine/aarch64/memset.c")
+
+        remove_files("newlibc/machine/aarch64/stpcpy.c")
+        remove_files("newlibc/machine/aarch64/strchr.c")
+        remove_files("newlibc/machine/aarch64/strchrnul.c")
+        remove_files("newlibc/machine/aarch64/strcmp.c")
+        remove_files("newlibc/machine/aarch64/strcpy.c")
+        remove_files("newlibc/machine/aarch64/strlen.c")
+        remove_files("newlibc/machine/aarch64/strncmp.c")
+        remove_files("newlibc/machine/aarch64/strnlen.c")
+        remove_files("newlibc/machine/aarch64/strrchr.c")
+
+        remove_files("newlibc/machine/aarch64/rawmemchr.c")
+
+        add_files("newlib/libc/machine/aarch64/**.S")
+    else
+        add_files("newlib/libc/machine/aarch64/setjmp.S")
+    end
+
     add_files("newlib/libc/syscalls/*.c")
     remove_files("newlib/libc/syscalls/sysfcntl.c")
     add_files("newlib/libc/misc/*.c")
