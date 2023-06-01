@@ -13,6 +13,8 @@ target("nx")
 
     add_packages("switch-llvm", "switch-newlib")
 
+    add_cxflags("-Wno-pointer-sign", "-Wno-parentheses-equality")
+
     add_rules("bin2s")
 
     set_languages("gnu11")

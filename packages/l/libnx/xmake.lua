@@ -4,6 +4,8 @@ package("libnx")
 
     add_deps("switch-llvm", {kind = "binary", host = true})
 
+    add_patches("20230529", "patch/switch.diff")
+
     add_defines("LIBNX_NO_DEPRECATION")
 
     on_install("switch", function(package)

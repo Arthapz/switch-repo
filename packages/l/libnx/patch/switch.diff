@@ -1,42 +1,28 @@
-diff --git a/nx/source/runtime/init.c b/nx/source/runtime/init.c
-index cf9e6171..ebcf82b1 100644
---- a/nx/source/runtime/init.c
-+++ b/nx/source/runtime/init.c
-@@ -169,6 +169,10 @@ void __attribute__((weak)) __libnx_init(void* ctx, Handle main_thread, void* sav
+diff --git a/nx/source/runtime/newlib.c b/nx/source/runtime/newlib.c
+index b3a2de08..e9bf8bc8 100644
+--- a/nx/source/runtime/newlib.c
++++ b/nx/source/runtime/newlib.c
+@@ -430,15 +430,20 @@ void newlibSetup(void)
  {
-     // Called by crt0.
- 
-+    // Call constructors.
-+    void __libc_init_array(void);
-+    __libc_init_array();
+     // Initialize thread vars for the main thread
+     ThreadVars* tv = getThreadVars();
+-    tv->magic      = THREADVARS_MAGIC;
+-    tv->thread_ptr = NULL;
+-    tv->reent      = _impure_ptr;
+ #pragma GCC diagnostic push
+ #pragma GCC diagnostic ignored "-Warray-bounds"
+     tv->tls_tp     = __tls_start-2*sizeof(void*); // subtract size of Thread Control Block (TCB)
+ #pragma GCC diagnostic pop
++    tv->magic      = THREADVARS_MAGIC;
++    tv->thread_ptr = NULL;
++    tv->reent      = _impure_ptr;
+     tv->handle     = envGetMainThreadHandle();
+
++    void *ptr;
++    __asm__ ("mrs %x[data], tpidrro_el0" : [data] "=r" (ptr));
++    ptr += 0x1F8;
++    __asm__ ("msr tpidr_el0, %x[data]" : [data] "=r" (ptr));
 +
-     // Libnx initialization goes here.
-     envSetup(ctx, main_thread, saved_lr);
-     newlibSetup();
-@@ -181,21 +185,18 @@ void __attribute__((weak)) __libnx_init(void* ctx, Handle main_thread, void* sav
- 
-     // Initialize services.
-     __appInit();
--
--    // Call constructors.
--    void __libc_init_array(void);
--    __libc_init_array();
- }
- 
- void __attribute__((weak)) NORETURN __libnx_exit(int rc)
- {
--    // Call destructors.
--    void __libc_fini_array(void);
--    __libc_fini_array();
--
-     // Clean up services.
-     __appExit();
- 
-     __nx_exit(0, envGetExitFuncPtr());
-+
-+    // Call destructors.
-+    void __libc_fini_array(void);
-+    __libc_fini_array();
-+
- }
- 
+     u32 tls_size = __tdata_lma_end - __tdata_lma;
+     if (tls_size)
+         memcpy(__tls_start, __tdata_lma, tls_size);
