@@ -1,6 +1,6 @@
 package("libnx")
     add_urls("https://github.com/Arthapz/libnx.git", {branch = "main"})
-    add_versions("20230530", "b0e6258632f4f44888ba9b627b127b3d56579067")
+    add_versions("20230601", "3cf40e49a023f30a5d168d07454606ce176d6b08")
 
     add_deps("switch-llvm", {kind = "binary", host = true})
 
