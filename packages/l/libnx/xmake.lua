@@ -4,12 +4,19 @@ package("libnx")
 
     add_deps("switch-llvm", {kind = "binary", host = true})
 
-    add_patches("20230530", "patch/switch.diff")
-
     add_defines("LIBNX_NO_DEPRECATION")
 
     on_install("switch", function(package)
         os.cp(path.join(package:scriptdir(), "port", "xmake.lua"), "xmake.lua")
+
+        io.replace("nx/source/runtime/newlib.c",
+[[    tv->handle     = envGetMainThreadHandle();]],
+[[    tv->handle     = envGetMainThreadHandle();
+      void *ptr;
+      __asm__ volatile  ("mrs %x[data], tpidrro_el0\n\t"
+                         "ldr %x[data], [%x[data], #0x1F8]\n\t"
+                         "msr tpidr_el0, %x[data]"
+                         : [data] "=r" (ptr));]], {plain = true})
 
         local opt = {mode = package:debug() and "debug" or "release"}
         import("package.tools.xmake").install(package, opt)
