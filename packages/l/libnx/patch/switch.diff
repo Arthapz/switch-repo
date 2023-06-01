@@ -1,27 +1,16 @@
 diff --git a/nx/source/runtime/newlib.c b/nx/source/runtime/newlib.c
-index b3a2de08..e9bf8bc8 100644
+index b3a2de08..ae80ffcb 100644
 --- a/nx/source/runtime/newlib.c
 +++ b/nx/source/runtime/newlib.c
-@@ -430,15 +430,20 @@ void newlibSetup(void)
- {
-     // Initialize thread vars for the main thread
-     ThreadVars* tv = getThreadVars();
--    tv->magic      = THREADVARS_MAGIC;
--    tv->thread_ptr = NULL;
--    tv->reent      = _impure_ptr;
- #pragma GCC diagnostic push
- #pragma GCC diagnostic ignored "-Warray-bounds"
-     tv->tls_tp     = __tls_start-2*sizeof(void*); // subtract size of Thread Control Block (TCB)
+@@ -439,6 +439,12 @@ void newlibSetup(void)
  #pragma GCC diagnostic pop
-+    tv->magic      = THREADVARS_MAGIC;
-+    tv->thread_ptr = NULL;
-+    tv->reent      = _impure_ptr;
      tv->handle     = envGetMainThreadHandle();
 
 +    void *ptr;
-+    __asm__ ("mrs %x[data], tpidrro_el0" : [data] "=r" (ptr));
-+    ptr += 0x1F8;
-+    __asm__ ("msr tpidr_el0, %x[data]" : [data] "=r" (ptr));
++    __asm__ volatile  ("mrs %x[data], tpidrro_el0\n\t"
++                       "ldr %x[data], [%x[data], #0x1F8]\n\t"
++                       "msr tpidr_el0, %x[data]"
++                       : [data] "=r" (ptr));
 +
      u32 tls_size = __tdata_lma_end - __tdata_lma;
      if (tls_size)
