@@ -52,8 +52,8 @@ package("switch-llvm")
     set_homepage("https://llvm.org/")
     set_description("The LLVM Compiler Infrastructure, targetting Nintendo switch environment")
 
-    set_urls("https://github.com/Arthapz/switch-llvm.git")
-    add_versions("20230601", "7f374b6902fad9caed41284a57d573abe9ada9d1")
+    set_urls("https://github.com/Arthapz/switch-llvm.git", {branch = "main"})
+    add_versions("20230602", "4d8fa9e2eb1d59331ffce5d50001159f0efef663")
 
     add_deps("cmake", {kind = "binary", host = true})
     add_deps("ninja", {kind = "binary", host = true})
