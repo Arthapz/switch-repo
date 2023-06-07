@@ -53,7 +53,7 @@ package("switch-llvm")
     set_description("The LLVM Compiler Infrastructure, targetting Nintendo switch environment")
 
     set_urls("https://github.com/Arthapz/switch-llvm.git", {branch = "main"})
-    add_versions("20230602", "4d8fa9e2eb1d59331ffce5d50001159f0efef663")
+    add_versions("20230602", "668b3a7b5df747df52297796b754a71e74bfc7e2")
 
     add_deps("cmake", {kind = "binary", host = true})
     add_deps("ninja", {kind = "binary", host = true})
@@ -78,6 +78,7 @@ package("switch-llvm")
 
         local opt = {}
         opt.cmake_generator = "Ninja"
+        opt.jobs = 20
 
         local llvm_projects = {"clang", "lld"}
         if package:config("lldb") then
@@ -108,8 +109,7 @@ package("switch-llvm")
         os.cd("../../newlib")
         os.cp(path.join(package:scriptdir(), "ports", "newlib", "xmake.lua"), "xmake.lua")
 
-        local opt = {
-            plat = "switch",
+        opt = {
             arch = "aarch64",
             mode = package:debug() and "debug" or "release",
             cxflags = table.concat(buildflags, " ") .. " " .. table.concat(defines, " "):gsub("([^ ]+)", "-D%1"),
@@ -245,6 +245,9 @@ package("switch-llvm")
         }
 
         os.cd("runtimes")
+        opt = {}
+        opt.cmake_generator = "Ninja"
+        opt.jobs = 20
         import("package.tools.cmake").install(package, runtime_options, opt)
 
         os.cp(path.join(package:installdir("lib", "linux"), "libclang_rt.atomic-aarch64.a"), path.join(package:installdir("lib", "linux"), "libatomic.a"))

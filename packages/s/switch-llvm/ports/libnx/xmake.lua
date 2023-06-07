@@ -2,8 +2,10 @@ includes("xmake/**.lua")
 
 add_rules("mode.debug", "mode.release")
 
-set_allowedplats("switch")
-set_allowedarchs("switch|aarch64")
+-- set_allowedplats("switch")
+set_allowedarchs("aarch64")
+
+set_languages("gnu11")
 
 target("nx")
     set_kind("$(kind)")
@@ -13,8 +15,6 @@ target("nx")
     add_cxflags("-Wno-pointer-sign", "-Wno-parentheses-equality")
 
     add_rules("bin2s")
-
-    set_languages("gnu11")
 
     add_defines("LIBNX_NO_DEPRECATION", {public = true})
 

@@ -9,10 +9,12 @@ local flags = {
 add_cxflags(flags)
 add_asflags(flags)
 
+set_languages("gnu99")
+
 add_rules("mode.debug", "mode.release")
 
-set_allowedplats("switch")
-set_allowedarchs("switch|aarch64")
+-- set_allowedplats("switch")
+set_allowedarchs("aarch64")
 
 target("newlib")
     set_kind("headeronly")
@@ -49,10 +51,10 @@ target("newlib")
     add_headerfiles("$(buildir)/_newlib_version.h")
     add_includedirs("$(buildir)", {public = true})
 
+    add_packages("switch-llvm")
+
 target("libm")
     set_kind("$(kind)")
-
-    add_packages("switch-llvm")
 
     add_files("newlib/libm/common/**.c")
     add_files("newlib/libm/complex/**.c")
@@ -75,34 +77,33 @@ target("libm")
     add_sysincludedirs("newlib/libc/include", {public = true})
 
     add_deps("newlib")
+    add_packages("switch-llvm")
 
 target("libc")
     set_kind("$(kind)")
-
-    add_packages("switch-llvm")
 
     add_files("newlib/libc/argz/**.c")
     add_files("newlib/libc/ssp/*.c")
     add_files("newlib/libc/machine/aarch64/**.c")
 
     if is_mode("release") then
-        remove_files("newlibc/machine/aarch64/memchr.c")
-        remove_files("newlibc/machine/aarch64/memcmp.c")
-        remove_files("newlibc/machine/aarch64/memcpy.c")
-        remove_files("newlibc/machine/aarch64/memmove.c")
-        remove_files("newlibc/machine/aarch64/memset.c")
+        remove_files("newlib/libc/machine/aarch64/memchr.c")
+        remove_files("newlib/libc/machine/aarch64/memcmp.c")
+        remove_files("newlib/libc/machine/aarch64/memcpy.c")
+        remove_files("newlib/libc/machine/aarch64/memmove.c")
+        remove_files("newlib/libc/machine/aarch64/memset.c")
 
-        remove_files("newlibc/machine/aarch64/stpcpy.c")
-        remove_files("newlibc/machine/aarch64/strchr.c")
-        remove_files("newlibc/machine/aarch64/strchrnul.c")
-        remove_files("newlibc/machine/aarch64/strcmp.c")
-        remove_files("newlibc/machine/aarch64/strcpy.c")
-        remove_files("newlibc/machine/aarch64/strlen.c")
-        remove_files("newlibc/machine/aarch64/strncmp.c")
-        remove_files("newlibc/machine/aarch64/strnlen.c")
-        remove_files("newlibc/machine/aarch64/strrchr.c")
+        remove_files("newlib/libc/machine/aarch64/stpcpy.c")
+        remove_files("newlib/libc/machine/aarch64/strchr.c")
+        remove_files("newlib/libc/machine/aarch64/strchrnul.c")
+        remove_files("newlib/libc/machine/aarch64/strcmp.c")
+        remove_files("newlib/libc/machine/aarch64/strcpy.c")
+        remove_files("newlib/libc/machine/aarch64/strlen.c")
+        remove_files("newlib/libc/machine/aarch64/strncmp.c")
+        remove_files("newlib/libc/machine/aarch64/strnlen.c")
+        remove_files("newlib/libc/machine/aarch64/strrchr.c")
 
-        remove_files("newlibc/machine/aarch64/rawmemchr.c")
+        remove_files("newlib/libc/machine/aarch64/rawmemchr.c")
 
         add_files("newlib/libc/machine/aarch64/**.S")
     else
@@ -141,6 +142,7 @@ target("libc")
     add_sysincludedirs("newlib/libc/include", {public = true})
 
     add_deps("newlib", "libm")
+    add_packages("switch-llvm")
 
 target("libgloss")
     set_kind("headeronly")
@@ -161,7 +163,6 @@ target("libgloss")
 
     add_defines("HAVE_CONFIG_H", {public = true})
 
-
     add_sysincludedirs("newlib/libc/machine/aarch64/", {public = true})
     add_sysincludedirs("newlib/libc/machine/aarch64/sys", {public = true})
     add_sysincludedirs("newlib/libc/sys/arm", {public = true})
@@ -171,6 +172,7 @@ target("libgloss")
     add_headerfiles("$(buildir)/config.h")
     add_includedirs("$(buildir)", {public = true})
     add_includedirs(".", {public = true})
+    add_packages("switch-llvm")
 
 local modules = {
     librdimon = {
