@@ -1,4 +1,4 @@
-package("switch-newlib")
+package("switch-borealis")
     add_urls("https://github.com/natinusala/borealis.git", {branch = "main"})
     add_versions("20230527", "20e2d33b6c4ffce139ce304c503c04f5b94da920")
 
