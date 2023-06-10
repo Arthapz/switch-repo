@@ -126,7 +126,7 @@ package("switch-llvm-sysroot")
 
         local crt_lib_dir = package:installdir("lib", "nxos")
 
-        local crt_o_dir = path.join(package:buildir(), ".objs", "switch-crt", "switch", "aarch64", is_mode("debug") and "debug" or "release", "src")
+        local crt_o_dir = path.join(package:buildir(), ".objs", "switch-crt", "switch", "aarch64", package:debug() and "debug" or "release", "src")
         vprint("copy " .. path.join(crt_o_dir, "crti.S.o") .. " to " .. path.join(crt_lib_dir, "crti.o"))
         os.cp(path.join(crt_o_dir, "crti.S.o"), path.join(crt_lib_dir, "crti.o"))
 
@@ -171,6 +171,10 @@ package("switch-llvm-sysroot")
             "-DLLVM_DEFAULT_TARGET_TRIPLE=" .. triple,
             "-DLLVM_ENABLE_PIC=ON",
             "-DLLVM_ENABLE_MODULES=OFF",
+            "-DLLVM_INCLUDE_TESTS=OFF",
+            "-DLLVM_BUILD_TESTS=OFF",
+            "-DLLVM_INCLUDE_DOCS=OFF",
+            "-DLLVM_BUILD_DOCS=OFF",
 
             -- compiler-rt
             "-DCOMPILER_RT_DEBUG=" .. (package:debug() and "ON" or "OFF"),
@@ -189,7 +193,9 @@ package("switch-llvm-sysroot")
             "-DCOMPILER_RT_BUILD_ORC=OFF",
             "-DCOMPILER_RT_BUILD_XRAY=OFF",
             "-DCOMPILER_RT_INCLUDE_TESTS=OFF",
-            --"-DCOMPILER_RT_BUILD_STANDALONE_LIBATOMIC=ON",
+            "-DCOMPILER_RT_BUILD_TESTS=OFF",
+            "-DCOMPILER_RT_INCLUDE_DOCS=OFF",
+            "-DCOMPILER_RT_BUILD_DOCS=OFF",
 
             -- libc
             -- "-DLIBC_INCLUDE_DOCS=OFF",
@@ -203,8 +209,10 @@ package("switch-llvm-sysroot")
             "-DLIBUNWIND_USE_COMPILER_RT=ON",
             "-DLIBUNWIND_IS_BAREMETAL=ON",
             "-DLIBUNWIND_ENABLE_ARM_WMMX=ON",
-            "-DLIBUNWIND_INCLUDE_DOCS=OFF",
             "-DLIBUNWIND_INCLUDE_TESTS=OFF",
+            "-DLIBUNWIND_BUILD_TESTS=OFF",
+            "-DLIBUNWIND_INCLUDE_DOCS=OFF",
+            "-DLIBUNWIND_BUILD_DOCS=OFF",
 
             -- libcxx
             "-DLIBCXX_INCLUDE_TESTS=OFF",
@@ -218,6 +226,10 @@ package("switch-llvm-sysroot")
             "-DLIBCXX_INCLUDE_BENCHMARKS=OFF",
             "-DLIBCXX_HAS_PTHREAD_API=ON",
             "-DLIBCXX_ENABLE_STD_MODULE=ON",
+            "-DLIBCXX_INCLUDE_TESTS=OFF",
+            "-DLIBCXX_BUILD_TESTS=OFF",
+            "-DLIBCXX_INCLUDE_DOCS=OFF",
+            "-DLIBCXX_BUILD_DOCS=OFF",
 
             -- libcxxabi
             "-DLIBCXXABI_USE_LLVM_UNWINDER=OFF",
@@ -228,8 +240,11 @@ package("switch-llvm-sysroot")
             "-DLIBCXXABI_BAREMETAL=ON",
             "-DLIBCXXABI_ENABLE_PEDANTIC=ON",
             "-DLIBCXXABI_LIBUNWIND_INCLUDES_INTERNAL=" .. path.join(package:cachedir(), "source", "switch-llvm-sysroot", "llvm-project", "libunwind", "include"),
-            "-DLIBCXXABI_INCLUDE_TESTS=OFF",
             "-DLIBCXXABI_ENABLE_SHARED=OFF",
+            "-DLIBCXXABI_INCLUDE_TESTS=OFF",
+            "-DLIBCXXABI_BUILD_TESTS=OFF",
+            "-DLIBCXXABI_INCLUDE_DOCS=OFF",
+            "-DLIBCXXABI_BUILD_DOCS=OFF"
         }
 
         import("package.tools.cmake").install(package, runtime_options, opt)
