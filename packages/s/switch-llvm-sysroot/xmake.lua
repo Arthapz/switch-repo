@@ -1,95 +1,19 @@
 local triple = "aarch64-unknown-none-elf"
 
-local buildflags = {
-    "-march=armv8-a+crc+crypto+simd",
-    "--target=" .. triple,
-    "-mcpu=cortex-a57",
-    "-mtune=cortex-a57",
-    "-ftls-model=local-exec",
-    "-ffunction-sections",
-    "-fdata-sections",
-    "-fstack-protector-strong",
-    "-fPIC",
-    "-mtp=el0",
-    "-fvectorize",
-    "--rtlib=compiler-rt"
-}
-
-local sharedlinkflags = {
-    "-fuse-ld=lld",
-    "--target=" .. triple,
-    "-Wl,-Bdynamic",
-    "-fPIC",
-    "-Wl,--gc-sections",
-    "-Wl,-z,text",
-    "-Wl,--build-id=sha1",
-    "-Wl,--no-dynamic-linker",
-    "-Wl,--as-needed",
-    "-Wl,--eh-frame-hdr",
-    "-fvisibility=hidden",
-    "--rtlib=compiler-rt"
-}
-
-local executablelinkflags = {
-    "-fuse-ld=lld",
-    "--target=" .. triple,
-    "-Wl,-Bsymbolic",
-    "-fPIE",
-    "-Wl,-pie",
-    "-Wl,--gc-sections",
-    "-Wl,-z,text",
-    "-Wl,--build-id=sha1",
-    "-Wl,--no-dynamic-linker",
-    "-Wl,--as-needed",
-    "-Wl,--eh-frame-hdr",
-    "-fvisibility=hidden",
-    "--rtlib=compiler-rt"
-}
-
-local defines = {
-    "__SWITCH__=1",
-    "__SWITCH=1",
-    "LIBNX_NO_DEPRECATION",
-    "_GNU_SOURCE=1",
-    "_LIBC",
-    "_NEWLIB_VERSION=4.3.0",
-    "__NEWLIB__=4"
-}
-
 package("switch-llvm-sysroot")
     set_description("A switch homebrew sysroot based on LLVM libc++, newlib libc and libnx")
 
     set_urls("https://github.com/Arthapz/switch-llvm.git", {branch = "main"})
-    add_versions("20230608-1", "8e550a26dee1c9921e0b149b27552f3b5c8eb2a8")
+    add_versions("20230610", "2683db06474f4ba4f34916c5af16a89b9f7b7e54")
 
     add_deps("cmake", {host = true})
     add_deps("ninja", {host = true})
-    add_deps("python 3.x", {kind = "binary", host = true})
 
-    add_patches("20230608-1", "patch/switch.diff")
-
-    add_defines(defines)
-    add_cxflags(buildflags, {force = true})
-    add_asflags(buildflags, {force = true})
-    add_ldflags(executablelinkflags, {force = true})
-    add_shflags(sharedlinkflags, {force = true})
-
-    add_links("sysbase", "nx", "pthread")
+    add_patches("20230610", "patch/switch.diff")
 
     on_load(function(package)
-        package:set("includedirs", "")
-        package:add("ldflags", "-Wl,-T," .. path.join(package:installdir("share"), "nro.ld"), {force = true})
-
-        package:add("cxflags", "--sysroot=" .. package:installdir(), {force = true})
-        package:add("asflags", "--sysroot=" .. package:installdir(), {force = true})
-        package:add("ldflags", "-Wl,--sysroot=" .. package:installdir(), {force = true})
-        package:add("shflags", "-Wl,--sysroot=" .. package:installdir(), {force = true})
-
-        package:add("ldflags", "-L" .. package:installdir("lib", "nxos"), {force = true})
-        package:add("shflags", "-L" .. package:installdir("lib", "nxos"), {force = true})
-
-        package:add("ldflags", "-Wl," .. path.join(package:installdir("lib", "nxos"), "crti.o"), {force = true})
-        package:add("ldflags", "-Wl," .. path.join(package:installdir("lib", "nxos"), "crtn.o"), {force = true})
+        --package:set("includedirs", "")
+        package:set("links", "")
     end)
 
     on_install("@windows", "@macosx", "@linux", function(package)
@@ -98,13 +22,17 @@ package("switch-llvm-sysroot")
         os.cd("newlib")
         os.cp(path.join(package:scriptdir(), "ports", "newlib", "xmake.lua"), "xmake.lua")
 
-        local opt = {arch = "aarch64",
-                     mode = package:debug() and "debug" or "release",
-                     plat = "switch",
-                     cxflags = table.concat(package:get("cxflags"), " ") .. " " .. table.concat(defines, " "):gsub("([^ ]+)", "-D%1"),
-                     asflags = table.concat(package:get("asflags"), " ") .. " " .. table.concat(defines, " "):gsub("([^ ]+)", "-D%1"),
-                     ldflags = table.concat(package:get("ldflags"), " "),
-                     shflags = table.concat(package:get("shflags"), " ")}
+        local cxflags = {"--sysroot=" .. package:installdir()}
+
+        local ldflags = {"-Wl,--sysroot=" .. package:installdir(),
+                         "-L" .. package:installdir("lib", "nxos"),
+                         "-lsysbase", "-lnx", "-lpthread"}
+
+        local opt = {cxflags = table.concat(cxflags, " "),
+                     asflags = table.concat(cxflags, " "),
+                     ldflags = table.concat(ldflags, " "),
+                     shflags = table.concat(ldflags, " ")}
+
         import("package.tools.xmake").install(package, opt)
 
         os.cd("../libnx")
@@ -158,12 +86,12 @@ package("switch-llvm-sysroot")
             -- "-DCMAKE_CXX_COMPILER=clang++",
             "-DCMAKE_C_COMPILER_WORKS=ON",
             "-DCMAKE_CXX_COMPILER_WORKS=ON",
-            "-DCMAKE_C_FLAGS=" .. table.concat(package:get("cxflags"), " ") .. " " .. table.concat(defines, " "):gsub("([^ ]+)", "-D%1"),
-            "-DCMAKE_CXX_FLAGS=" .. table.concat(package:get("cxflags"), " ") .. " " .. table.concat(defines, " "):gsub("([^ ]+)", "-D%1"),
-            "-DCMAKE_ASM_FLAGS=" .. table.concat(package:get("asflags"), " ") .. " " .. table.concat(defines, " "):gsub("([^ ]+)", "-D%1"),
-            "-DCMAKE_EXE_LINKER_FLAGS=" .. table.concat(package:get("ldflags"), " "),
-            "-DCMAKE_SHARED_LINKER_FLAGS=" .. table.concat(package:get("shflags"), " "),
-            "-DCMAKE_REQUIRED_FLAGS=" .. table.concat(package:get("ldflags"), " "),
+            "-DCMAKE_C_FLAGS=" .. table.concat(cxflags, " "),
+            "-DCMAKE_CXX_FLAGS=" .. table.concat(cxflags, " "),
+            "-DCMAKE_ASM_FLAGS=" .. table.concat(cxflags, " "),
+            "-DCMAKE_EXE_LINKER_FLAGS=" .. table.concat(ldflags, " "),
+            "-DCMAKE_SHARED_LINKER_FLAGS=" .. table.concat(ldflags, " "),
+            "-DCMAKE_REQUIRED_FLAGS=" .. table.concat(ldflags, " "),
 
             -- llvm
             "-DLLVM_ENABLE_PROJECTS=",

@@ -1,4 +1,5 @@
 package("switch-mesa")
+    set_policy("package.strict_compatibility", true)
     add_urls("https://github.com/devkitPro/mesa.git", {branch = "switch-20.1.0-rc3"})
     add_versions("20230527", "05fc4b1d449b8fe12cf1a47b46c4a1c1f4e4e3a6")
 
@@ -9,12 +10,12 @@ package("switch-mesa")
     add_deps("ninja", {host = true})
     add_deps("cmake", {host = true})
     add_deps("bison", {host = true})
+
     if is_host("windows") then
         add_deps("pkgconf", {host = true})
     end
 
-    add_deps("switch-llvm-sysroot")
-    add_deps("libdrm_nouveau")
+    add_deps("switch-llvm-sysroot", "libdrm_nouveau")
 
     on_load(function(package)
         package:set("links", "GLESv2", "EGL", "glapi")
@@ -42,14 +43,9 @@ system = 'horizon'
 cpu_family = 'aarch64'
 cpu = 'cortex-a57'
 endian = 'little'
-        ]]
+]]
 
         io.writefile("machinefile.ini", machinefile)
-
-        io.replace("meson.build",
-            "dep_atomic = cc.find_library('atomic')",
-            "dep_atomic = cc.find_library('clang_rt.builtins-aarch64')",
-            {plain = true})
 
         local configs = {
             "--cross-file=" .. "machinefile.ini",

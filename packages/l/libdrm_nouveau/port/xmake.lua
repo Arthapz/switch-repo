@@ -3,8 +3,7 @@ add_rules("mode.debug", "mode.release")
 set_allowedplats("switch")
 set_allowedarchs("switch|aarch64")
 
-add_requires("switch-llvm", {host = true})
-add_requires("switch-llvm-runtimes", "switch-newlib", "libnx", {debug = is_mode("debug")})
+add_requires("switch-llvm-sysroot")
 
 target("drm_nouveau")
     set_kind("static")
@@ -18,5 +17,4 @@ target("drm_nouveau")
 
     add_includedirs("include")
 
-    add_packages("switch-llvm-runtimes")
-    add_packages("switch-llvm", "switch-newlib", "libnx")
+    add_packages("switch-llvm-sysroot")

@@ -3,8 +3,7 @@ add_rules("mode.debug", "mode.release")
 set_allowedplats("switch")
 set_allowedarchs("switch|aarch64")
 
-add_requires("switch-llvm", {host = true})
-add_requires("switch-llvm-runtimes", "switch-newlib", "libnx", "switch-mesa", {debug = is_mode("debug")})
+add_requires("switch-llvm-sysroot", "switch-mesa")
 
 target("glad")
     set_kind("static")
@@ -17,4 +16,4 @@ target("glad")
 
     add_includedirs("include")
 
-    add_packages("switch-llvm", "switch-llvm-runtimes", "switch-newlib", "libnx", "switch-mesa")
+    add_packages("switch-llvm-sysroot", "switch-mesa")
